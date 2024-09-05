@@ -1,4 +1,4 @@
-opt=-O3 -Wall -std=c2x
+opt=-O3 -Wall -std=gnu11
 
 all: clean altermac
 

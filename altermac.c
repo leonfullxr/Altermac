@@ -1,18 +1,20 @@
 /* altermac. */
+#ifndef ALTERMAC_H
+#define ALTERMAC_H
+
 #include <sys/socket.h>
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
-#include <errno.h>
 #include <assert.h>
 #include <stdbool.h>
-#include <sys/ioctl.h>  // for the ioctl function
-#include <net/if.h>     // for the ifreq struct
+#include <sys/ioctl.h>    // Defines ioctl function
+#include <net/if.h>       // Defines struct ifreq and IF_NAMESIZE
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <net/if_arp.h>
+#include <net/if_arp.h>   // Defines ARPHRD_ETHER
 
 typedef unsigned char int8;
 typedef unsigned short int int16;
@@ -46,16 +48,14 @@ bool changeMac(int8 *If, MAC mac) {
     filedescriptor = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
     assert(filedescriptor > 0);
 
-    strncpy(ir.ifr_ifrn.ifrn_name, (char *)If, (IFNAMSIZ-1));
+    strncpy(ir.ifr_ifrn.ifrn_name, (char *)If, (IF_NAMESIZE-1));
     ir.ifr_ifru.ifru_hwaddr.sa_family = ARPHRD_ETHER;
     memcpy(ir.ifr_ifru.ifru_hwaddr.sa_data, &mac, 6);
 
     ret = ioctl(filedescriptor, SIOCSIFHWADDR, &ir);
     close(filedescriptor);
 
-    return (!ret) ?
-        true :
-        false;
+    return (!ret) ? true : false;
 }
 
 int main(int argc,char *argv[]) {
@@ -65,17 +65,18 @@ int main(int argc,char *argv[]) {
     if (argc < 2) {
         fprintf(stderr, "Usage: %s INTERFACE\n", *argv);
         return -1;
-    } else {
-        If = (int8 *)argv[1];
     }
 
-    srand(getpid());
+    If = (int8 *)argv[1];
     mac = generateMac();
+
     if (changeMac(If, mac)) {
         printf("0x%llx\n", (long long)mac.address);
     } else {
-        printf(stderr);
+        fprintf(stderr, "Failed to change MAC Address.\n");
     }
 
     return 0;
 }
+
+#endif
