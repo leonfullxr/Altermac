@@ -1,45 +1,41 @@
-# Altermac
-A program written in C to be able to change the MAC address.
+# **Altermac: A MAC Address Changer Tool**
 
-The whole purpose was to deeply learn what are MAC addresses and what is their purpose.
-Some ethical hacking videos recommend changing this address to remain anonymous and/or private.
+## **Overview**
 
-## Challenges
-The more simple approach would be to run the following command:
+Altermac is a lightweight, command-line tool designed to dynamically change the MAC address of network interfaces on Linux systems. This project provides an easy-to-use interface for developers and system administrators to modify MAC addresses, which can be useful in various scenarios such as testing network protocols or troubleshooting connectivity issues.
 
-> ifconfig "your_network" hw ether "your_MACaddress"
+## **Features**
 
-But surely it's better to understand **how** the command works and what it does.
-So for that reason, it's recommended to run:
+*   **MAC Address Generation**: Altermac includes a built-in random number generator that produces 48-bit MAC addresses suitable for use with most networking applications.
+*   **Interface Selection**: Users can specify the network interface to modify using the command-line argument `INTERFACE`.
+*   **Error Handling**: It includes error handling mechanisms to catch and report potential issues during MAC address modifications.
 
-> strace -f ifconfig "your_network" hw ether "your_MACaddress" 2> ouput.txt
+## **Run**
 
-Now, with this output, we can ensure **what** functions are being called
-and what's the process behind it.
+To run Altermac, follow these steps:
 
-We want to look for something like the following:
+1.  Clone this repository: `git clone https://github.com/username/altermac.git`
+2.  Navigate into the project directory: `cd altermac`
+3.  Compile the source code (optional): `make` or `gcc -o altermac *.c`
+4.  Run Altermac using your preferred interface name as an argument: `./altermac INTERFACE`
 
-> ioctl(4, SIOCSIFHWADDR, {ifr_name="ens192", ifr_hwaddr={sa_family=ARPHRD_ETHER, sa_data=00:0c:29:9f:80:dd}}) = 0
+## **Example Usage**
 
-Now bare in mind, the output might be slightly different, as the MAC address, ifr_name and ether have a high chance to change.
-The important thing is to recognize the parameters and the 'ioctl' function.
+To generate a new MAC address for the `wlan0` interface:
 
-Now, we have to look at the file:
+```bash
+./altermac wlan0
+```
 
-> vi /usr/include/x86_64-linux-gnu/bits/ioctls.h
+## **Compiling and Installing**
 
-Note: I'm using a 64bit ARM, the 'x86_64'-linux-gnu might differ depending on your system's arquitechture..
+If you want to compile Altermac from source or install it on your system, follow these steps:
 
-Now in this file, we can search for '#define SIOCSIFHWADDR', which was the 2º argument in the ioctl function.
+1.  Clone this repository: `git clone https://github.com/leonfullxr/Altermac`
+2.  Navigate into the project directory: `cd Altermac`
+3.  Compile the source code: `make`
+4.  Execute the program
 
-Now we want to search for 3º argument in the 'ioctl' function. For that, we will want to find the file
-that contains the ifr_name:
-
-> grep -r ifr_name
-
-A bunch of files have it included, but we want the definition, which in my case, is in the
-/usr/include/net/if.h
-
-> vi /usr/include/net/if.h
-
-Here we can see that there is a struct defined, called 'ifreq', that's what we're interested in.
+## **Further improvements**
+* Handle various interfaces at the same time.
+* Change partially a MAC address (can select the changing bytes).
