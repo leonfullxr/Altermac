@@ -31,8 +31,12 @@ MAC generateMac() {
     return mac;
 }
 
-int main(int,char**) {
+int main(int argc,char *argv[]) {
+    MAC mac;
+
     srand(getpid());
+    mac = generateMac();
+    printf("0x%llx\n", (long long)mac.address);
 
     return 0;
 }
